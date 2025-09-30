@@ -1,0 +1,128 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH noseyparker 1  "noseyparker v0.24.0-x86_64-unknown-linux-gnu" 
+.SH NAME
+noseyparker \- Nosey Parker is a command\-line program that finds secrets and sensitive information in textual data and Git history.
+.SH SYNOPSIS
+\fBnoseyparker\fR [\fB\-v\fR|\fB\-\-verbose\fR]... [\fB\-q\fR|\fB\-\-quiet\fR] [\fB\-\-color\fR] [\fB\-\-progress\fR] [\fB\-\-ignore\-certs\fR] [\fB\-\-rlimit\-nofile\fR] [\fB\-\-sqlite\-cache\-size\fR] [\fB\-\-enable\-backtraces\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIsubcommands\fR>
+.SH DESCRIPTION
+Nosey Parker is a command\-line program that finds secrets and sensitive information in textual data and Git history.
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.SH "GLOBAL OPTIONS"
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Enable verbose output
+
+This can be repeated up to 3 times to enable successively more output.
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Suppress non\-error feedback messages
+
+This silences WARNING, INFO, DEBUG, and TRACE messages and disables progress bars. This overrides any provided verbosity and progress reporting options.
+.TP
+\fB\-\-color\fR=\fIMODE\fR [default: auto]
+Enable or disable colored output
+
+When this is "auto", colors are enabled for stdout and stderr when they are terminals.
+
+If the `NO_COLOR` environment variable is set, it takes precedence and is equivalent to `\-\-color=never`.
+.br
+
+.br
+[\fIpossible values: \fRauto, never, always]
+.TP
+\fB\-\-progress\fR=\fIMODE\fR [default: auto]
+Enable or disable progress bars
+
+When this is "auto", progress bars are enabled when stderr is a terminal.
+.br
+
+.br
+[\fIpossible values: \fRauto, never, always]
+.TP
+\fB\-\-ignore\-certs\fR
+Ignore validation of TLS certificates
+.SH "ADVANCED GLOBAL OPTIONS"
+.TP
+\fB\-\-rlimit\-nofile\fR=\fILIMIT\fR [default: 16384]
+Set the rlimit for number of open files to LIMIT
+
+This should not need to be changed from the default unless you run into crashes from running out of file descriptors.
+.TP
+\fB\-\-sqlite\-cache\-size\fR=\fISIZE\fR [default: \-1048576]
+Set the cache size for SQLite connections to SIZE
+
+This has the effect of setting SQLite\*(Aqs `pragma cache_size=SIZE`. The default value is set to use a maximum of 1GiB for database cache. See <https://sqlite.org/pragma.html#pragma_cache_size> for more details.
+.TP
+\fB\-\-enable\-backtraces\fR=\fIBOOL\fR [default: true]
+Enable or disable backtraces on panic
+
+This has the effect of setting the `RUST_BACKTRACE` environment variable to 1.
+.br
+
+.br
+[\fIpossible values: \fRtrue, false]
+.SH SUBCOMMANDS
+.TP
+noseyparker\-scan(1)
+Scan content for secrets
+.TP
+noseyparker\-summarize(1)
+Summarize scan findings
+.TP
+noseyparker\-report(1)
+Report detailed scan findings
+.TP
+noseyparker\-github(1)
+Interact with GitHub
+.TP
+noseyparker\-datastore(1)
+Manage datastores
+.TP
+noseyparker\-rules(1)
+Manage rules and rulesets
+.TP
+noseyparker\-annotations(1)
+Manage annotations (experimental)
+.TP
+noseyparker\-generate(1)
+Generate Nosey Parker release assets
+.SH VERSION
+v0.24.0
+
+Build Configuration:
+
+    Build Timestamp:    2025\-05\-08T21:11:15.600909923Z
+
+    Commit Timestamp:   2025\-05\-08T17:04:47.000000000\-04:00
+    Commit Branch:      HEAD
+    Commit SHA:         61fa4ca67e4ded1b47b3b9ecce618ae91f1ff2fe
+
+    Cargo Features:     color_backtrace,default,disable_trace,github,log,mimalloc,parquet,release
+    Debug:              true
+    Optimization:       3
+    Target Triple:      x86_64\-unknown\-linux\-gnu
+
+Build System:
+
+    OS:                 Ubuntu
+    OS Version:         Linux (Ubuntu 22.04)
+
+    CPU Vendor:         AuthenticAMD
+    CPU Brand:          AMD EPYC 7763 64\-Core Processor
+    CPU Cores:          2
+
+    rustc Version:      1.86.0
+    rustc Channel:      stable
+    rustc Host Triple:  x86_64\-unknown\-linux\-gnu
+    rustc Commit Date:  2025\-03\-31
+    rustc Commit SHA:   05f9846f893b09a1be1fc8560e33fc3c815cfecb
+    rustc LLVM Version: 19.1
+.SH AUTHORS
+Brad Larsen <bradford.larsen@praetorian.com>

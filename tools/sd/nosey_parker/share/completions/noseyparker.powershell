@@ -1,0 +1,629 @@
+
+using namespace System.Management.Automation
+using namespace System.Management.Automation.Language
+
+Register-ArgumentCompleter -Native -CommandName 'noseyparker' -ScriptBlock {
+    param($wordToComplete, $commandAst, $cursorPosition)
+
+    $commandElements = $commandAst.CommandElements
+    $command = @(
+        'noseyparker'
+        for ($i = 1; $i -lt $commandElements.Count; $i++) {
+            $element = $commandElements[$i]
+            if ($element -isnot [StringConstantExpressionAst] -or
+                $element.StringConstantType -ne [StringConstantType]::BareWord -or
+                $element.Value.StartsWith('-') -or
+                $element.Value -eq $wordToComplete) {
+                break
+        }
+        $element.Value
+    }) -join ';'
+
+    $completions = @(switch ($command) {
+        'noseyparker' {
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('-V', '-V ', [CompletionResultType]::ParameterName, 'Print version')
+            [CompletionResult]::new('--version', '--version', [CompletionResultType]::ParameterName, 'Print version')
+            [CompletionResult]::new('scan', 'scan', [CompletionResultType]::ParameterValue, 'Scan content for secrets')
+            [CompletionResult]::new('summarize', 'summarize', [CompletionResultType]::ParameterValue, 'Summarize scan findings')
+            [CompletionResult]::new('report', 'report', [CompletionResultType]::ParameterValue, 'Report detailed scan findings')
+            [CompletionResult]::new('github', 'github', [CompletionResultType]::ParameterValue, 'Interact with GitHub')
+            [CompletionResult]::new('datastore', 'datastore', [CompletionResultType]::ParameterValue, 'Manage datastores')
+            [CompletionResult]::new('rules', 'rules', [CompletionResultType]::ParameterValue, 'Manage rules and rulesets')
+            [CompletionResult]::new('annotations', 'annotations', [CompletionResultType]::ParameterValue, 'Manage annotations (experimental)')
+            [CompletionResult]::new('generate', 'generate', [CompletionResultType]::ParameterValue, 'Generate Nosey Parker release assets')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'noseyparker;scan' {
+            [CompletionResult]::new('-d', '-d', [CompletionResultType]::ParameterName, 'Use the specified datastore')
+            [CompletionResult]::new('--datastore', '--datastore', [CompletionResultType]::ParameterName, 'Use the specified datastore')
+            [CompletionResult]::new('-j', '-j', [CompletionResultType]::ParameterName, 'Use N parallel scanning threads')
+            [CompletionResult]::new('--jobs', '--jobs', [CompletionResultType]::ParameterName, 'Use N parallel scanning threads')
+            [CompletionResult]::new('--rules-path', '--rules-path', [CompletionResultType]::ParameterName, 'Load additional rules and rulesets from the specified file or directory')
+            [CompletionResult]::new('--ruleset', '--ruleset', [CompletionResultType]::ParameterName, 'Enable the ruleset with the specified ID')
+            [CompletionResult]::new('--load-builtins', '--load-builtins', [CompletionResultType]::ParameterName, 'Control whether built-in rules and rulesets are loaded')
+            [CompletionResult]::new('--git-url', '--git-url', [CompletionResultType]::ParameterName, 'Clone and scan the Git repository at the specified URL')
+            [CompletionResult]::new('--enumerator', '--enumerator', [CompletionResultType]::ParameterName, 'Read inputs from a JSONL enumerator file (experimental)')
+            [CompletionResult]::new('--github-user', '--github-user', [CompletionResultType]::ParameterName, 'Clone and scan accessible repositories belonging to the specified GitHub user')
+            [CompletionResult]::new('--github-organization', '--github-organization', [CompletionResultType]::ParameterName, 'Clone and scan accessible repositories belonging to the specified GitHub organization')
+            [CompletionResult]::new('--github-org', '--github-org', [CompletionResultType]::ParameterName, 'Clone and scan accessible repositories belonging to the specified GitHub organization')
+            [CompletionResult]::new('--github-api-url', '--github-api-url', [CompletionResultType]::ParameterName, 'Use the specified URL for GitHub API access')
+            [CompletionResult]::new('--api-url', '--api-url', [CompletionResultType]::ParameterName, 'Use the specified URL for GitHub API access')
+            [CompletionResult]::new('--github-repo-type', '--github-repo-type', [CompletionResultType]::ParameterName, 'Clone and scan GitHub repos only of the given type')
+            [CompletionResult]::new('--git-clone', '--git-clone', [CompletionResultType]::ParameterName, 'Use the specified method for cloning Git repositories')
+            [CompletionResult]::new('--git-history', '--git-history', [CompletionResultType]::ParameterName, 'Use the specified mode for handling Git history')
+            [CompletionResult]::new('--max-file-size', '--max-file-size', [CompletionResultType]::ParameterName, 'Do not scan files larger than the specified size')
+            [CompletionResult]::new('-i', '-i', [CompletionResultType]::ParameterName, 'Use custom path-based ignore rules from the specified file')
+            [CompletionResult]::new('--ignore', '--ignore', [CompletionResultType]::ParameterName, 'Use custom path-based ignore rules from the specified file')
+            [CompletionResult]::new('--blob-metadata', '--blob-metadata', [CompletionResultType]::ParameterName, 'Specify which blobs will have metadata recorded')
+            [CompletionResult]::new('--git-blob-provenance', '--git-blob-provenance', [CompletionResultType]::ParameterName, 'Specify which Git commit provenance metadata will be collected')
+            [CompletionResult]::new('--snippet-length', '--snippet-length', [CompletionResultType]::ParameterName, 'Include up to the specified number of bytes before and after each match')
+            [CompletionResult]::new('--copy-blobs', '--copy-blobs', [CompletionResultType]::ParameterName, 'Specify which blobs will be copied in entirety to the datastore')
+            [CompletionResult]::new('--copy-blobs-format', '--copy-blobs-format', [CompletionResultType]::ParameterName, 'Specify the format for blobs copied by the `--copy-blobs` option')
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('--all-github-organizations', '--all-github-organizations', [CompletionResultType]::ParameterName, 'Clone and scan accessible repositories from all accessible GitHub organizations')
+            [CompletionResult]::new('--all-github-orgs', '--all-github-orgs', [CompletionResultType]::ParameterName, 'Clone and scan accessible repositories from all accessible GitHub organizations')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            break
+        }
+        'noseyparker;summarize' {
+            [CompletionResult]::new('-d', '-d', [CompletionResultType]::ParameterName, 'Use the specified datastore')
+            [CompletionResult]::new('--datastore', '--datastore', [CompletionResultType]::ParameterName, 'Use the specified datastore')
+            [CompletionResult]::new('-o', '-o', [CompletionResultType]::ParameterName, 'Write output to the specified path')
+            [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Write output to the specified path')
+            [CompletionResult]::new('-f', '-f', [CompletionResultType]::ParameterName, 'Write output in the specified format')
+            [CompletionResult]::new('--format', '--format', [CompletionResultType]::ParameterName, 'Write output in the specified format')
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            break
+        }
+        'noseyparker;report' {
+            [CompletionResult]::new('-d', '-d', [CompletionResultType]::ParameterName, 'Use the specified datastore')
+            [CompletionResult]::new('--datastore', '--datastore', [CompletionResultType]::ParameterName, 'Use the specified datastore')
+            [CompletionResult]::new('--max-matches', '--max-matches', [CompletionResultType]::ParameterName, 'Limit the number of matches per finding to at most N')
+            [CompletionResult]::new('--max-provenance', '--max-provenance', [CompletionResultType]::ParameterName, 'Limit the number of provenance entries per match to at most N')
+            [CompletionResult]::new('--min-score', '--min-score', [CompletionResultType]::ParameterName, 'Only report findings that have a mean score of at least N')
+            [CompletionResult]::new('--finding-status', '--finding-status', [CompletionResultType]::ParameterName, 'Include only findings with the assigned status')
+            [CompletionResult]::new('--suppress-redundant', '--suppress-redundant', [CompletionResultType]::ParameterName, 'Suppress redundant matches and findings')
+            [CompletionResult]::new('-o', '-o', [CompletionResultType]::ParameterName, 'Write output to the specified path')
+            [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Write output to the specified path')
+            [CompletionResult]::new('-f', '-f', [CompletionResultType]::ParameterName, 'Write output in the specified format')
+            [CompletionResult]::new('--format', '--format', [CompletionResultType]::ParameterName, 'Write output in the specified format')
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            break
+        }
+        'noseyparker;github' {
+            [CompletionResult]::new('--github-api-url', '--github-api-url', [CompletionResultType]::ParameterName, 'Use the specified URL for GitHub API access')
+            [CompletionResult]::new('--api-url', '--api-url', [CompletionResultType]::ParameterName, 'Use the specified URL for GitHub API access')
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('repos', 'repos', [CompletionResultType]::ParameterValue, 'Interact with GitHub repositories')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'noseyparker;github;repos' {
+            [CompletionResult]::new('--github-api-url', '--github-api-url', [CompletionResultType]::ParameterName, 'Use the specified URL for GitHub API access')
+            [CompletionResult]::new('--api-url', '--api-url', [CompletionResultType]::ParameterName, 'Use the specified URL for GitHub API access')
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('list', 'list', [CompletionResultType]::ParameterValue, 'List repositories belonging to a specific user or organization')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'noseyparker;github;repos;list' {
+            [CompletionResult]::new('--user', '--user', [CompletionResultType]::ParameterName, 'Select repositories belonging to the specified user')
+            [CompletionResult]::new('--github-user', '--github-user', [CompletionResultType]::ParameterName, 'Select repositories belonging to the specified user')
+            [CompletionResult]::new('--organization', '--organization', [CompletionResultType]::ParameterName, 'Select repositories belonging to the specified organization')
+            [CompletionResult]::new('--org', '--org', [CompletionResultType]::ParameterName, 'Select repositories belonging to the specified organization')
+            [CompletionResult]::new('--github-organization', '--github-organization', [CompletionResultType]::ParameterName, 'Select repositories belonging to the specified organization')
+            [CompletionResult]::new('--github-org', '--github-org', [CompletionResultType]::ParameterName, 'Select repositories belonging to the specified organization')
+            [CompletionResult]::new('--repo-type', '--repo-type', [CompletionResultType]::ParameterName, 'Select only GitHub repos of the given type')
+            [CompletionResult]::new('--github-repo-type', '--github-repo-type', [CompletionResultType]::ParameterName, 'Select only GitHub repos of the given type')
+            [CompletionResult]::new('-o', '-o', [CompletionResultType]::ParameterName, 'Write output to the specified path')
+            [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Write output to the specified path')
+            [CompletionResult]::new('-f', '-f', [CompletionResultType]::ParameterName, 'Write output in the specified format')
+            [CompletionResult]::new('--format', '--format', [CompletionResultType]::ParameterName, 'Write output in the specified format')
+            [CompletionResult]::new('--github-api-url', '--github-api-url', [CompletionResultType]::ParameterName, 'Use the specified URL for GitHub API access')
+            [CompletionResult]::new('--api-url', '--api-url', [CompletionResultType]::ParameterName, 'Use the specified URL for GitHub API access')
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('--all-organizations', '--all-organizations', [CompletionResultType]::ParameterName, 'Select repositories belonging to all organizations')
+            [CompletionResult]::new('--all-orgs', '--all-orgs', [CompletionResultType]::ParameterName, 'Select repositories belonging to all organizations')
+            [CompletionResult]::new('--all-github-organizations', '--all-github-organizations', [CompletionResultType]::ParameterName, 'Select repositories belonging to all organizations')
+            [CompletionResult]::new('--all-github-orgs', '--all-github-orgs', [CompletionResultType]::ParameterName, 'Select repositories belonging to all organizations')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            break
+        }
+        'noseyparker;github;repos;help' {
+            [CompletionResult]::new('list', 'list', [CompletionResultType]::ParameterValue, 'List repositories belonging to a specific user or organization')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'noseyparker;github;repos;help;list' {
+            break
+        }
+        'noseyparker;github;repos;help;help' {
+            break
+        }
+        'noseyparker;github;help' {
+            [CompletionResult]::new('repos', 'repos', [CompletionResultType]::ParameterValue, 'Interact with GitHub repositories')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'noseyparker;github;help;repos' {
+            [CompletionResult]::new('list', 'list', [CompletionResultType]::ParameterValue, 'List repositories belonging to a specific user or organization')
+            break
+        }
+        'noseyparker;github;help;repos;list' {
+            break
+        }
+        'noseyparker;github;help;help' {
+            break
+        }
+        'noseyparker;datastore' {
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('init', 'init', [CompletionResultType]::ParameterValue, 'Initialize a new datastore')
+            [CompletionResult]::new('export', 'export', [CompletionResultType]::ParameterValue, 'Export a datastore')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'noseyparker;datastore;init' {
+            [CompletionResult]::new('-d', '-d', [CompletionResultType]::ParameterName, 'Initialize the datastore at specified path')
+            [CompletionResult]::new('--datastore', '--datastore', [CompletionResultType]::ParameterName, 'Initialize the datastore at specified path')
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            break
+        }
+        'noseyparker;datastore;export' {
+            [CompletionResult]::new('-d', '-d', [CompletionResultType]::ParameterName, 'Datastore to export')
+            [CompletionResult]::new('--datastore', '--datastore', [CompletionResultType]::ParameterName, 'Datastore to export')
+            [CompletionResult]::new('-o', '-o', [CompletionResultType]::ParameterName, 'Write output to the specified path')
+            [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Write output to the specified path')
+            [CompletionResult]::new('-f', '-f', [CompletionResultType]::ParameterName, 'Write output in the specified format')
+            [CompletionResult]::new('--format', '--format', [CompletionResultType]::ParameterName, 'Write output in the specified format')
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            break
+        }
+        'noseyparker;datastore;help' {
+            [CompletionResult]::new('init', 'init', [CompletionResultType]::ParameterValue, 'Initialize a new datastore')
+            [CompletionResult]::new('export', 'export', [CompletionResultType]::ParameterValue, 'Export a datastore')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'noseyparker;datastore;help;init' {
+            break
+        }
+        'noseyparker;datastore;help;export' {
+            break
+        }
+        'noseyparker;datastore;help;help' {
+            break
+        }
+        'noseyparker;rules' {
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('check', 'check', [CompletionResultType]::ParameterValue, 'Check rules for problems')
+            [CompletionResult]::new('list', 'list', [CompletionResultType]::ParameterValue, 'List available rules')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'noseyparker;rules;check' {
+            [CompletionResult]::new('--rules-path', '--rules-path', [CompletionResultType]::ParameterName, 'Load additional rules and rulesets from the specified file or directory')
+            [CompletionResult]::new('--ruleset', '--ruleset', [CompletionResultType]::ParameterName, 'Enable the ruleset with the specified ID')
+            [CompletionResult]::new('--load-builtins', '--load-builtins', [CompletionResultType]::ParameterName, 'Control whether built-in rules and rulesets are loaded')
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-W', '-W ', [CompletionResultType]::ParameterName, 'Treat warnings as errors')
+            [CompletionResult]::new('--warnings-as-errors', '--warnings-as-errors', [CompletionResultType]::ParameterName, 'Treat warnings as errors')
+            [CompletionResult]::new('--pedantic', '--pedantic', [CompletionResultType]::ParameterName, 'Perform additional nit-picking checks')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            break
+        }
+        'noseyparker;rules;list' {
+            [CompletionResult]::new('--rules-path', '--rules-path', [CompletionResultType]::ParameterName, 'Load additional rules and rulesets from the specified file or directory')
+            [CompletionResult]::new('--ruleset', '--ruleset', [CompletionResultType]::ParameterName, 'Enable the ruleset with the specified ID')
+            [CompletionResult]::new('--load-builtins', '--load-builtins', [CompletionResultType]::ParameterName, 'Control whether built-in rules and rulesets are loaded')
+            [CompletionResult]::new('-o', '-o', [CompletionResultType]::ParameterName, 'Write output to the specified path')
+            [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Write output to the specified path')
+            [CompletionResult]::new('-f', '-f', [CompletionResultType]::ParameterName, 'Write output in the specified format')
+            [CompletionResult]::new('--format', '--format', [CompletionResultType]::ParameterName, 'Write output in the specified format')
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            break
+        }
+        'noseyparker;rules;help' {
+            [CompletionResult]::new('check', 'check', [CompletionResultType]::ParameterValue, 'Check rules for problems')
+            [CompletionResult]::new('list', 'list', [CompletionResultType]::ParameterValue, 'List available rules')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'noseyparker;rules;help;check' {
+            break
+        }
+        'noseyparker;rules;help;list' {
+            break
+        }
+        'noseyparker;rules;help;help' {
+            break
+        }
+        'noseyparker;annotations' {
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('export', 'export', [CompletionResultType]::ParameterValue, 'Export annotations from a datastore (experimental)')
+            [CompletionResult]::new('import', 'import', [CompletionResultType]::ParameterValue, 'Import annotations into a datastore (experimental)')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'noseyparker;annotations;export' {
+            [CompletionResult]::new('-d', '-d', [CompletionResultType]::ParameterName, 'Use the specified datastore')
+            [CompletionResult]::new('--datastore', '--datastore', [CompletionResultType]::ParameterName, 'Use the specified datastore')
+            [CompletionResult]::new('-o', '-o', [CompletionResultType]::ParameterName, 'Write annotations to the specified path')
+            [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Write annotations to the specified path')
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            break
+        }
+        'noseyparker;annotations;import' {
+            [CompletionResult]::new('-d', '-d', [CompletionResultType]::ParameterName, 'Use the specified datastore')
+            [CompletionResult]::new('--datastore', '--datastore', [CompletionResultType]::ParameterName, 'Use the specified datastore')
+            [CompletionResult]::new('-i', '-i', [CompletionResultType]::ParameterName, 'Read annotations from the specified path')
+            [CompletionResult]::new('--input', '--input', [CompletionResultType]::ParameterName, 'Read annotations from the specified path')
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            break
+        }
+        'noseyparker;annotations;help' {
+            [CompletionResult]::new('export', 'export', [CompletionResultType]::ParameterValue, 'Export annotations from a datastore (experimental)')
+            [CompletionResult]::new('import', 'import', [CompletionResultType]::ParameterValue, 'Import annotations into a datastore (experimental)')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'noseyparker;annotations;help;export' {
+            break
+        }
+        'noseyparker;annotations;help;import' {
+            break
+        }
+        'noseyparker;annotations;help;help' {
+            break
+        }
+        'noseyparker;generate' {
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('manpages', 'manpages', [CompletionResultType]::ParameterValue, 'Generate man pages')
+            [CompletionResult]::new('json-schema', 'json-schema', [CompletionResultType]::ParameterValue, 'Generate the JSON schema for the output of the `report` command')
+            [CompletionResult]::new('shell-completions', 'shell-completions', [CompletionResultType]::ParameterValue, 'Generate shell completions')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'noseyparker;generate;manpages' {
+            [CompletionResult]::new('-o', '-o', [CompletionResultType]::ParameterName, 'Write output to the specified directory')
+            [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Write output to the specified directory')
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            break
+        }
+        'noseyparker;generate;json-schema' {
+            [CompletionResult]::new('-o', '-o', [CompletionResultType]::ParameterName, 'Write output to the specified path')
+            [CompletionResult]::new('--output', '--output', [CompletionResultType]::ParameterName, 'Write output to the specified path')
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            break
+        }
+        'noseyparker;generate;shell-completions' {
+            [CompletionResult]::new('-s', '-s', [CompletionResultType]::ParameterName, 's')
+            [CompletionResult]::new('--shell', '--shell', [CompletionResultType]::ParameterName, 'shell')
+            [CompletionResult]::new('--color', '--color', [CompletionResultType]::ParameterName, 'Enable or disable colored output')
+            [CompletionResult]::new('--progress', '--progress', [CompletionResultType]::ParameterName, 'Enable or disable progress bars')
+            [CompletionResult]::new('--rlimit-nofile', '--rlimit-nofile', [CompletionResultType]::ParameterName, 'Set the rlimit for number of open files to LIMIT')
+            [CompletionResult]::new('--sqlite-cache-size', '--sqlite-cache-size', [CompletionResultType]::ParameterName, 'Set the cache size for SQLite connections to SIZE')
+            [CompletionResult]::new('--enable-backtraces', '--enable-backtraces', [CompletionResultType]::ParameterName, 'Enable or disable backtraces on panic')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('--verbose', '--verbose', [CompletionResultType]::ParameterName, 'Enable verbose output')
+            [CompletionResult]::new('-q', '-q', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress non-error feedback messages')
+            [CompletionResult]::new('--ignore-certs', '--ignore-certs', [CompletionResultType]::ParameterName, 'Ignore validation of TLS certificates')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
+            break
+        }
+        'noseyparker;generate;help' {
+            [CompletionResult]::new('manpages', 'manpages', [CompletionResultType]::ParameterValue, 'Generate man pages')
+            [CompletionResult]::new('json-schema', 'json-schema', [CompletionResultType]::ParameterValue, 'Generate the JSON schema for the output of the `report` command')
+            [CompletionResult]::new('shell-completions', 'shell-completions', [CompletionResultType]::ParameterValue, 'Generate shell completions')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'noseyparker;generate;help;manpages' {
+            break
+        }
+        'noseyparker;generate;help;json-schema' {
+            break
+        }
+        'noseyparker;generate;help;shell-completions' {
+            break
+        }
+        'noseyparker;generate;help;help' {
+            break
+        }
+        'noseyparker;help' {
+            [CompletionResult]::new('scan', 'scan', [CompletionResultType]::ParameterValue, 'Scan content for secrets')
+            [CompletionResult]::new('summarize', 'summarize', [CompletionResultType]::ParameterValue, 'Summarize scan findings')
+            [CompletionResult]::new('report', 'report', [CompletionResultType]::ParameterValue, 'Report detailed scan findings')
+            [CompletionResult]::new('github', 'github', [CompletionResultType]::ParameterValue, 'Interact with GitHub')
+            [CompletionResult]::new('datastore', 'datastore', [CompletionResultType]::ParameterValue, 'Manage datastores')
+            [CompletionResult]::new('rules', 'rules', [CompletionResultType]::ParameterValue, 'Manage rules and rulesets')
+            [CompletionResult]::new('annotations', 'annotations', [CompletionResultType]::ParameterValue, 'Manage annotations (experimental)')
+            [CompletionResult]::new('generate', 'generate', [CompletionResultType]::ParameterValue, 'Generate Nosey Parker release assets')
+            [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
+            break
+        }
+        'noseyparker;help;scan' {
+            break
+        }
+        'noseyparker;help;summarize' {
+            break
+        }
+        'noseyparker;help;report' {
+            break
+        }
+        'noseyparker;help;github' {
+            [CompletionResult]::new('repos', 'repos', [CompletionResultType]::ParameterValue, 'Interact with GitHub repositories')
+            break
+        }
+        'noseyparker;help;github;repos' {
+            [CompletionResult]::new('list', 'list', [CompletionResultType]::ParameterValue, 'List repositories belonging to a specific user or organization')
+            break
+        }
+        'noseyparker;help;github;repos;list' {
+            break
+        }
+        'noseyparker;help;datastore' {
+            [CompletionResult]::new('init', 'init', [CompletionResultType]::ParameterValue, 'Initialize a new datastore')
+            [CompletionResult]::new('export', 'export', [CompletionResultType]::ParameterValue, 'Export a datastore')
+            break
+        }
+        'noseyparker;help;datastore;init' {
+            break
+        }
+        'noseyparker;help;datastore;export' {
+            break
+        }
+        'noseyparker;help;rules' {
+            [CompletionResult]::new('check', 'check', [CompletionResultType]::ParameterValue, 'Check rules for problems')
+            [CompletionResult]::new('list', 'list', [CompletionResultType]::ParameterValue, 'List available rules')
+            break
+        }
+        'noseyparker;help;rules;check' {
+            break
+        }
+        'noseyparker;help;rules;list' {
+            break
+        }
+        'noseyparker;help;annotations' {
+            [CompletionResult]::new('export', 'export', [CompletionResultType]::ParameterValue, 'Export annotations from a datastore (experimental)')
+            [CompletionResult]::new('import', 'import', [CompletionResultType]::ParameterValue, 'Import annotations into a datastore (experimental)')
+            break
+        }
+        'noseyparker;help;annotations;export' {
+            break
+        }
+        'noseyparker;help;annotations;import' {
+            break
+        }
+        'noseyparker;help;generate' {
+            [CompletionResult]::new('manpages', 'manpages', [CompletionResultType]::ParameterValue, 'Generate man pages')
+            [CompletionResult]::new('json-schema', 'json-schema', [CompletionResultType]::ParameterValue, 'Generate the JSON schema for the output of the `report` command')
+            [CompletionResult]::new('shell-completions', 'shell-completions', [CompletionResultType]::ParameterValue, 'Generate shell completions')
+            break
+        }
+        'noseyparker;help;generate;manpages' {
+            break
+        }
+        'noseyparker;help;generate;json-schema' {
+            break
+        }
+        'noseyparker;help;generate;shell-completions' {
+            break
+        }
+        'noseyparker;help;help' {
+            break
+        }
+    })
+
+    $completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
+        Sort-Object -Property ListItemText
+}
