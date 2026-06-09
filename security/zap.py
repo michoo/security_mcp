@@ -1,11 +1,14 @@
 import logging
+import os
 import subprocess
+import tempfile
 import mcp.types as types
 from typing import List
 
 
 logger = logging.getLogger(__name__)
 TIMEOUT = 900  # 15 minutes default
+ZAP_IMAGE = "ghcr.io/zaproxy/zaproxy:stable"
 
 
 async def dast_zaproxy_scan_impl(target_url: str) -> List[types.TextContent]:
@@ -26,23 +29,33 @@ async def dast_zaproxy_scan_impl(target_url: str) -> List[types.TextContent]:
 
     logger.info(f"Starting zap scan for target: {target_url}")
 
-    # Configure zap command with common best practices
-    command = [
-        "docker",
-        "run",
-        "--network", "host",
-        "-t", "ghcr.io/zaproxy/zaproxy:stable",
-        "zap-full-scan.py",
-        "-t", target_url
-    ]
-
     try:
-        result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT, check=False)
+        # ZAP writes its JSON report into /zap/wrk; mount a host temp dir (world-writable
+        # because the container runs as the unprivileged 'zap' user) to read it back.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            os.chmod(tmp_dir, 0o777)
+            report_name = "zap-report.json"
+            command = [
+                "docker", "run", "--rm",
+                "--network", "host",
+                "-v", f"{tmp_dir}:/zap/wrk/:rw",
+                "-t", ZAP_IMAGE,
+                "zap-full-scan.py",
+                "-t", target_url,
+                "-J", report_name,
+            ]
+            result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT, check=False)
 
-        logger.info("zap process finished.")
-        logger.debug(f"zap stdout:\n{result.stdout}")
+            logger.info("zap process finished.")
+            logger.debug(f"zap stdout:\n{result.stdout}")
 
-        return [types.TextContent(type="text", text=result.stdout)]
+            report_path = os.path.join(tmp_dir, report_name)
+            if os.path.isfile(report_path):
+                with open(report_path, "r") as f:
+                    return [types.TextContent(type="text", text=f.read())]
+
+            message = result.stdout or result.stderr or "zap did not produce a JSON report."
+            return [types.TextContent(type="text", text=message)]
 
     except subprocess.TimeoutExpired:
         logger.error(f"zap scan timed out after {TIMEOUT} seconds.")

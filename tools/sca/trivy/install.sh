@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=0.18.3
+VERSION=0.71.0
 
 wget https://github.com/aquasecurity/trivy/releases/download/v${VERSION}/trivy_${VERSION}_checksums.txt
 wget https://github.com/aquasecurity/trivy/releases/download/v${VERSION}/trivy_${VERSION}_Linux-64bit.tar.gz

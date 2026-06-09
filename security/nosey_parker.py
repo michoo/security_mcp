@@ -8,6 +8,8 @@ from typing import List
 logger = logging.getLogger(__name__)
 TIMEOUT = 900  # 15 minutes default
 nosey_parker_path = "./tools/sd/nosey_parker/bin/noseyparker"
+# Scan caches/datastores live under <repo>/data, independent of the current working directory.
+DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 
 
 async def secret_nosey_parker_scan_impl(project_dir: str) -> List[types.TextContent]:
@@ -29,18 +31,19 @@ async def secret_nosey_parker_scan_impl(project_dir: str) -> List[types.TextCont
         return [types.TextContent(type="text", text="nosey_parker target project_dir is required")]
 
     logger.info(f"Starting nosey_parker scan for target: {project_dir}")
-    # remove existing datastore.np folder
-    folder_path = "datastore.np"
+    # remove existing datastore.np folder (kept under <repo>/data)
+    os.makedirs(DATA_DIR, exist_ok=True)
+    folder_path = os.path.join(DATA_DIR, "datastore.np")
     shutil.rmtree(folder_path) if os.path.isdir(folder_path) else None
 
     # Configure nosey_parker command with common best practices
 
 
     try:
-        command = [nosey_parker_path, "scan", project_dir, "-d", "datastore.np/", "-v"]
+        command = [nosey_parker_path, "scan", project_dir, "-d", folder_path, "-v"]
         result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT, check=False)
 
-        command = [nosey_parker_path, "report", "-d", "datastore.np/"]
+        command = [nosey_parker_path, "report", "-d", folder_path, "--format", "sarif"]
         result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT, check=False)
 
         logger.info("nosey_parker process finished.")

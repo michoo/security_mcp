@@ -1,5 +1,7 @@
 import logging
+import os
 import subprocess
+import tempfile
 import mcp.types as types
 from typing import List
 
@@ -27,16 +29,22 @@ async def sca_osv_scanner_scan_impl(project_dir: str) -> List[types.TextContent]
 
     logger.info(f"Starting osv_scanner scan for target: {project_dir}")
 
-    # Configure osv_scanner command with common best practices
-    command = [osv_scanner_path, "scan", "-f", "markdown", project_dir]
-
     try:
-        result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT, check=False)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            sarif_path = os.path.join(tmp_dir, "osv.sarif")
+            # Recurse into subdirectories (-r); SARIF to a file (osv exits non-zero on vulns)
+            command = [osv_scanner_path, "scan", "-r", "--format", "sarif", "--output", sarif_path, project_dir]
+            result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT, check=False)
 
-        logger.info("osv_scanner process finished.")
-        logger.debug(f"osv_scanner stdout:\n{result.stdout}")
+            logger.info("osv_scanner process finished.")
+            logger.debug(f"osv_scanner stderr:\n{result.stderr}")
 
-        return [types.TextContent(type="text", text=result.stdout)]
+            if os.path.isfile(sarif_path):
+                with open(sarif_path, "r") as f:
+                    return [types.TextContent(type="text", text=f.read())]
+
+            message = result.stderr or result.stdout or "osv_scanner did not produce a SARIF report."
+            return [types.TextContent(type="text", text=message)]
 
     except subprocess.TimeoutExpired:
         logger.error(f"osv_scanner scan timed out after {TIMEOUT} seconds.")

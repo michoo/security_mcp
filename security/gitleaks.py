@@ -28,7 +28,7 @@ async def secret_gitleaks_scan_impl(project_dir: str) -> List[types.TextContent]
     logger.info(f"Starting gitleaks scan for target: {project_dir}")
 
     # Configure gitleaks command with common best practices
-    command = [gitleaks_path, "detect", "--source", project_dir, "--no-git", "--report-format", "json", "--report-path", "-"]
+    command = [gitleaks_path, "detect", "--source", project_dir, "--no-git", "--report-format", "sarif", "--report-path", "-"]
 
     try:
         result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT, check=False)

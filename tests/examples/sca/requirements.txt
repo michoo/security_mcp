@@ -1,0 +1,6 @@
+# SCA example — intentionally pinned to versions with known published vulnerabilities
+# so trivy / osv-scanner have something to report. Do not use these in real code.
+requests==2.19.0
+jinja2==2.10
+urllib3==1.24.1
+pyyaml==5.1

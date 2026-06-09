@@ -1,5 +1,7 @@
 import logging
+import os
 import subprocess
+import tempfile
 import mcp.types as types
 from typing import List
 
@@ -25,16 +27,22 @@ async def sast_opengrep_scan_impl(project_dir: str) -> List[types.TextContent]:
 
     logger.info(f"Starting opengrep scan for target: {project_dir}")
 
-    # Configure opengrep command with common best practices
-    command = [opengrep_path, "scan", project_dir]
-
     try:
-        result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT, check=False)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            sarif_path = os.path.join(tmp_dir, "opengrep.sarif")
+            # Use the auto ruleset and emit a SARIF report to a file
+            command = [opengrep_path, "scan", "--config", "auto", "--sarif-output", sarif_path, project_dir]
+            result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT, check=False)
 
-        logger.info("opengrep process finished.")
-        logger.debug(f"opengrep stdout:\n{result.stdout}")
+            logger.info("opengrep process finished.")
+            logger.debug(f"opengrep stderr:\n{result.stderr}")
 
-        return [types.TextContent(type="text", text=result.stdout)]
+            if os.path.isfile(sarif_path):
+                with open(sarif_path, "r") as f:
+                    return [types.TextContent(type="text", text=f.read())]
+
+            message = result.stderr or result.stdout or "opengrep did not produce a SARIF report."
+            return [types.TextContent(type="text", text=message)]
 
     except subprocess.TimeoutExpired:
         logger.error(f"opengrep scan timed out after {TIMEOUT} seconds.")

@@ -23,21 +23,86 @@ By standardizing model-tool interactions, MCP eliminates the need for custom int
 ## Features
 - **MCP Server** performing security scans:
   - **Secret detection**:
-    - nosey parker
-    - kingfisher (wip)
     - gitleaks
-  - **SCA**:
-    - trivy (that one includes IaC)
+    - nosey_parker
+    - titus
+    - kingfisher
+  - **SCA** (Software Composition Analysis):
+    - trivy
     - osv-scanner
-    - sca fixes 
+    - sca fixes
+  - **IaC misconfiguration**:
+    - trivy-misconfig (`trivy --scanners misconfig`)
+  - **License compliance**:
+    - trivy-license (`trivy --scanners license`)
   - **SAST**:
     - opengrep
+    - codeql
   - **DAST**:
     - nuclei
     - zaproxy
+  - **Pipeline (CI/CD) security**:
+    - plumber
+- **Aggregated scans** — `static_scan` (directory) and `dynamic_scan` (URL) MCP
+  tools run every scanner of a mode, deduplicate findings across tools, and write
+  a consolidated `report.md` / `report.json` / `report.html` under `reports/`.
+- **Per-scanner toggles** via `.env` — disable any scanner with e.g. `CODEQL=False`,
+  `KINGFISHER=off` (see `.env.example`). Applies to the MCP tools and the CLI.
 - Remediation suggestions based on findings and leveraging genAI
-- **Guinea-pig project for testing**
+- **CLI mode** to run a full (or partial) scan and generate a dated, consolidated report
 
+> Every file-based scanner emits **SARIF 2.1.0**; zaproxy emits JSON (no native SARIF).
+
+---
+
+## CLI mode
+
+Beside the MCP server, `cli.py` runs the scanners directly and writes a consolidated,
+dated report (Markdown + JSON + HTML) under `reports/`. Two modes are auto-detected
+from the target:
+
+- **static** — the target is a local directory → SCA / Secret / SAST / Pipeline tools
+- **dynamic** — the target is an `http(s)` URL → DAST tools (nuclei, zaproxy)
+
+```bash
+# full static scan of a project directory (all applicable tools)
+uv run python cli.py ./my-project
+
+# only some tools, explicit CodeQL language
+uv run python cli.py ./my-project --tools trivy,gitleaks,codeql --language python
+
+# dynamic (DAST) scan of a running app
+uv run python cli.py https://example.com
+
+# add a cross-tool deduplicated findings section to the report
+uv run python cli.py ./my-project --dedupe
+
+# pick report formats / output dir, or list tools (disabled tools are marked)
+uv run python cli.py ./my-project --formats md,html --output-dir reports
+uv run python cli.py --list
+```
+
+Each report contains the scanned directory/URL, the total scan + report-generation
+duration, and findings grouped by tool with a severity breakdown. Raw per-tool SARIF/JSON
+is kept alongside under `reports/scan_<date>_<mode>/raw/`. Generated reports are git-ignored.
+
+Any scanner can be disabled with a `.env` variable named after it (uppercased, `-`→`_`),
+e.g. `CODEQL=False` or `KINGFISHER=off`. See `.env.example` for the full list. The same
+toggles apply to the MCP server tools.
+
+> Every file-based scanner emits **SARIF 2.1.0**; zaproxy emits JSON (no native SARIF).
+> `codeql` needs a language (auto-detected from the sources when omitted); `nuclei`/`zaproxy`
+> need network/Docker — zaproxy is skipped automatically if its image isn't pulled.
+
+## Tests
+
+`tests/test_scanners.py` builds one example target per scanner family (under
+`tests/examples/`), runs every scanner, and asserts each produces a valid report.
+A small FastAPI app (`tests/dast_target.py`) is started automatically as the DAST target.
+
+```bash
+uv run python tests/test_scanners.py
+```
 
 ---
 
@@ -76,18 +141,25 @@ You’ll need the following tools and packages:
    mkdir .venv
    uv sync
    ```
-2. **Run the server**:
+2. **Install the scanner binaries** (downloaded into `tools/` by each tool's
+   `install.sh`; `tools/install-all.sh` runs them all):
    ```bash
-   uv run mcp_server.py
+   cd tools && ./install-all.sh            # everything
+   ./install-all.sh trivy nuclei           # only some tools
+   ./install-all.sh --list                 # list discovered tools
+   ```
+3. **Run the server**:
+   ```bash
+   uv run server.py
    # or
    source .venv/bin/activate
-   python mcp_server.py
+   python server.py
    ```
    Once the server is running, it will be available on:
    ```
    http://127.0.0.1:8000/mcp
    ```
-3. **Configure your MCP client**:  
+4. **Configure your MCP client**:  
    Update the client settings to connect to the running MCP server.
 
 ---

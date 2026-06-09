@@ -11,3 +11,21 @@ wheels/
 
 guinea-pig/dast/node_modules/
 .env
+
+# Installed security-tool binaries and extracted artifacts.
+# Everything dropped into a tool directory by its install.sh is ignored;
+# only the install.sh / uninstall.sh scripts stay tracked so tools can be
+# (re)installed via `tools/<...>/install.sh`.
+tools/**
+!tools/**/
+!tools/**/install.sh
+!tools/uninstall.sh
+
+# Runtime scan caches/datastores (kept under data/ by the scanners).
+data/datastore.np/
+data/titus.ds/
+data/codeql_db/
+*.sarif
+
+# Generated scan reports (cli.py writes dated folders here).
+reports/scan_*/

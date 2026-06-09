@@ -1,0 +1,27 @@
+# Intentionally insecure Kubernetes pod used as a deterministic target for the
+# trivy IaC misconfiguration scanner in the test harness. It trips several
+# built-in checks (privileged container, runs as root, privilege escalation,
+# writable root filesystem, mounted host docker socket).
+apiVersion: v1
+kind: Pod
+metadata:
+  name: insecure
+spec:
+  hostNetwork: true
+  hostPID: true
+  containers:
+    - name: app
+      image: nginx:latest
+      securityContext:
+        privileged: true
+        runAsUser: 0
+        runAsNonRoot: false
+        allowPrivilegeEscalation: true
+        readOnlyRootFilesystem: false
+      volumeMounts:
+        - name: docker-socket
+          mountPath: /var/run/docker.sock
+  volumes:
+    - name: docker-socket
+      hostPath:
+        path: /var/run/docker.sock
