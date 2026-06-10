@@ -3,6 +3,8 @@ import subprocess
 import mcp.types as types
 from typing import List
 
+from security.validation import ScanTargetError, resolve_scan_dir
+
 logger = logging.getLogger(__name__)
 TIMEOUT = 900  # 15 minutes default
 kingfisher_path = "./tools/sd/kingfisher/kingfisher"
@@ -25,14 +27,16 @@ async def secret_kingfisher_scan_impl(project_dir: str) -> List[types.TextConten
         details about the `kingfisher` scan results.
     :rtype: List[types.TextContent]
     """
-    if not project_dir:
-        logger.error("kingfisher target project_dir is required")
-        return [types.TextContent(type="text", text="kingfisher target project_dir is required")]
+    try:
+        project_dir = resolve_scan_dir(project_dir)
+    except ScanTargetError as e:
+        logger.error(f"kingfisher target error: {e}")
+        return [types.TextContent(type="text", text=f"kingfisher target error: {e}")]
 
     logger.info(f"Starting kingfisher scan for target: {project_dir}")
 
     # Single-step scan: emit SARIF to stdout, no external credential validation (fully local).
-    command = [kingfisher_path, "scan", project_dir, "--format", "sarif", "--no-validate"]
+    command = [kingfisher_path, "scan", "--format", "sarif", "--no-validate", "--", project_dir]
 
     try:
         result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT, check=False)

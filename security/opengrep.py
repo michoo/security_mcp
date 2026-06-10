@@ -5,6 +5,8 @@ import tempfile
 import mcp.types as types
 from typing import List
 
+from security.validation import ScanTargetError, resolve_scan_dir
+
 logger = logging.getLogger(__name__)
 TIMEOUT = 900  # 15 minutes default
 opengrep_path = "./tools/sast/opengrep/opengrep"
@@ -21,9 +23,11 @@ async def sast_opengrep_scan_impl(project_dir: str) -> List[types.TextContent]:
         in case of failure during the scan.
     :rtype: List[types.TextContent]
     """
-    if not project_dir:
-        logger.error("opengrep target project_dir is required")
-        return [types.TextContent(type="text", text="opengrep target project_dir is required")]
+    try:
+        project_dir = resolve_scan_dir(project_dir)
+    except ScanTargetError as e:
+        logger.error(f"opengrep target error: {e}")
+        return [types.TextContent(type="text", text=f"opengrep target error: {e}")]
 
     logger.info(f"Starting opengrep scan for target: {project_dir}")
 
@@ -31,7 +35,7 @@ async def sast_opengrep_scan_impl(project_dir: str) -> List[types.TextContent]:
         with tempfile.TemporaryDirectory() as tmp_dir:
             sarif_path = os.path.join(tmp_dir, "opengrep.sarif")
             # Use the auto ruleset and emit a SARIF report to a file
-            command = [opengrep_path, "scan", "--config", "auto", "--sarif-output", sarif_path, project_dir]
+            command = [opengrep_path, "scan", "--config", "auto", "--sarif-output", sarif_path, "--", project_dir]
             result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT, check=False)
 
             logger.info("opengrep process finished.")

@@ -5,6 +5,8 @@ import tempfile
 import mcp.types as types
 from typing import List
 
+from security.validation import ScanTargetError, resolve_scan_dir
+
 logger = logging.getLogger(__name__)
 TIMEOUT = 900  # 15 minutes default
 osv_scanner_path = "./tools/sca/osv-scanner/osv-scanner"
@@ -23,9 +25,11 @@ async def sca_osv_scanner_scan_impl(project_dir: str) -> List[types.TextContent]
         in case of failure.
     :rtype: List[types.TextContent]
     """
-    if not project_dir:
-        logger.error("osv_scanner target project_dir is required")
-        return [types.TextContent(type="text", text="osv_scanner target project_dir is required")]
+    try:
+        project_dir = resolve_scan_dir(project_dir)
+    except ScanTargetError as e:
+        logger.error(f"osv_scanner target error: {e}")
+        return [types.TextContent(type="text", text=f"osv_scanner target error: {e}")]
 
     logger.info(f"Starting osv_scanner scan for target: {project_dir}")
 
@@ -33,7 +37,7 @@ async def sca_osv_scanner_scan_impl(project_dir: str) -> List[types.TextContent]
         with tempfile.TemporaryDirectory() as tmp_dir:
             sarif_path = os.path.join(tmp_dir, "osv.sarif")
             # Recurse into subdirectories (-r); SARIF to a file (osv exits non-zero on vulns)
-            command = [osv_scanner_path, "scan", "-r", "--format", "sarif", "--output", sarif_path, project_dir]
+            command = [osv_scanner_path, "scan", "-r", "--format", "sarif", "--output", sarif_path, "--", project_dir]
             result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT, check=False)
 
             logger.info("osv_scanner process finished.")

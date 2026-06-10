@@ -5,6 +5,8 @@ import subprocess
 import mcp.types as types
 from typing import List
 
+from security.validation import ScanTargetError, resolve_scan_dir
+
 logger = logging.getLogger(__name__)
 TIMEOUT = 900  # 15 minutes default
 titus_path = "./tools/sd/titus/titus"
@@ -30,9 +32,11 @@ async def secret_titus_scan_impl(project_dir: str) -> List[types.TextContent]:
         details about the `titus` scan results.
     :rtype: List[types.TextContent]
     """
-    if not project_dir:
-        logger.error("titus target project_dir is required")
-        return [types.TextContent(type="text", text="titus target project_dir is required")]
+    try:
+        project_dir = resolve_scan_dir(project_dir)
+    except ScanTargetError as e:
+        logger.error(f"titus target error: {e}")
+        return [types.TextContent(type="text", text=f"titus target error: {e}")]
 
     logger.info(f"Starting titus scan for target: {project_dir}")
 
@@ -47,7 +51,7 @@ async def secret_titus_scan_impl(project_dir: str) -> List[types.TextContent]:
     # titus emits SARIF on stdout only via the `report` command when scanning into an
     # on-disk datastore, so run it in two steps: scan -> datastore, then report -> SARIF.
     # No validation / dynamic scoring, so the scan stays fully local (no external APIs).
-    scan_cmd = [titus_path, "scan", project_dir, "--output", datastore_path, "-q"]
+    scan_cmd = [titus_path, "scan", "-q", "--output", datastore_path, "--", project_dir]
     report_cmd = [titus_path, "report", "--datastore", datastore_path, "--format", "sarif"]
 
     try:

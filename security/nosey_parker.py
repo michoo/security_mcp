@@ -5,6 +5,8 @@ import subprocess
 import mcp.types as types
 from typing import List
 
+from security.validation import ScanTargetError, resolve_scan_dir
+
 logger = logging.getLogger(__name__)
 TIMEOUT = 900  # 15 minutes default
 nosey_parker_path = "./tools/sd/nosey_parker/bin/noseyparker"
@@ -26,9 +28,11 @@ async def secret_nosey_parker_scan_impl(project_dir: str) -> List[types.TextCont
     :return: List of TextContent instances, containing results or error messages from the scan process.
     :rtype: List[types.TextContent]
     """
-    if not project_dir:
-        logger.error("nosey_parker target URL/IP is required")
-        return [types.TextContent(type="text", text="nosey_parker target project_dir is required")]
+    try:
+        project_dir = resolve_scan_dir(project_dir)
+    except ScanTargetError as e:
+        logger.error(f"nosey_parker target error: {e}")
+        return [types.TextContent(type="text", text=f"nosey_parker target error: {e}")]
 
     logger.info(f"Starting nosey_parker scan for target: {project_dir}")
     # remove existing datastore.np folder (kept under <repo>/data)
@@ -40,7 +44,7 @@ async def secret_nosey_parker_scan_impl(project_dir: str) -> List[types.TextCont
 
 
     try:
-        command = [nosey_parker_path, "scan", project_dir, "-d", folder_path, "-v"]
+        command = [nosey_parker_path, "scan", "-d", folder_path, "-v", "--", project_dir]
         result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT, check=False)
 
         command = [nosey_parker_path, "report", "-d", folder_path, "--format", "sarif"]

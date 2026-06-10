@@ -6,6 +6,8 @@ import tempfile
 import mcp.types as types
 from typing import List, Optional, Tuple
 
+from security.validation import ScanTargetError, resolve_scan_dir
+
 
 logger = logging.getLogger(__name__)
 TIMEOUT = 900  # 15 minutes default
@@ -37,9 +39,11 @@ async def _trivy_fs_scan(project_dir: str, scanners: str, label: str) -> List[ty
     Used for misconfig (IaC) and license scanning, which the old bundled SARIF
     template cannot render — modern trivy emits SARIF natively for every scanner
     type. Falls back to a SKIPPED marker when the installed binary is too old."""
-    if not project_dir:
-        logger.error(f"{label} target project_dir is required")
-        return [types.TextContent(type="text", text=f"{label} target project_dir is required")]
+    try:
+        project_dir = resolve_scan_dir(project_dir)
+    except ScanTargetError as e:
+        logger.error(f"{label} target error: {e}")
+        return [types.TextContent(type="text", text=f"{label} target error: {e}")]
 
     version = _trivy_version()
     if version is not None and version < _MIN_SCANNERS_VERSION:
@@ -59,7 +63,7 @@ async def _trivy_fs_scan(project_dir: str, scanners: str, label: str) -> List[ty
                 "--scanners", scanners,
                 "--format", "sarif",
                 "--output", sarif_path,
-                project_dir,
+                "--", project_dir,
             ]
             result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT, check=False)
             logger.info(f"{label} process finished.")
@@ -110,9 +114,11 @@ async def sca_trivy_scan_impl(project_dir: str) -> List[types.TextContent]:
         error messages in text
     :rtype: List[types.TextContent]
     """
-    if not project_dir:
-        logger.error("trivy target project_dir is required")
-        return [types.TextContent(type="text", text="trivy target project_dir is required")]
+    try:
+        project_dir = resolve_scan_dir(project_dir)
+    except ScanTargetError as e:
+        logger.error(f"trivy target error: {e}")
+        return [types.TextContent(type="text", text=f"trivy target error: {e}")]
 
     logger.info(f"Starting trivy scan for target: {project_dir}")
 
@@ -128,7 +134,7 @@ async def sca_trivy_scan_impl(project_dir: str) -> List[types.TextContent]:
                 "--format", "template",
                 "--template", "@" + sarif_template,
                 "--output", sarif_path,
-                project_dir,
+                "--", project_dir,
             ]
             result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT, check=False)
 
