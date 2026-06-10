@@ -90,6 +90,12 @@ Any scanner can be disabled with a `.env` variable named after it (uppercased, `
 e.g. `CODEQL=False` or `KINGFISHER=off`. See `.env.example` for the full list. The same
 toggles apply to the MCP server tools.
 
+Set `SECURITY_MCP_SCAN_ROOT` to confine static scans to a directory tree: any
+`project_dir` that resolves (after following symlinks) outside that root is rejected.
+This bounds what the scanners — and an agent driving the MCP tools — can read, so they
+can't be pointed at arbitrary locations like `/` or `~/.ssh`. Unset by default (any
+directory allowed).
+
 > Every file-based scanner emits **SARIF 2.1.0**; zaproxy emits JSON (no native SARIF).
 > `codeql` needs a language (auto-detected from the sources when omitted); `nuclei`/`zaproxy`
 > need network/Docker — zaproxy is skipped automatically if its image isn't pulled.
