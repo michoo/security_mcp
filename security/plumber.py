@@ -5,6 +5,8 @@ import tempfile
 import mcp.types as types
 from typing import List
 
+from security.validation import ScanTargetError, resolve_scan_dir
+
 logger = logging.getLogger(__name__)
 TIMEOUT = 900  # 15 minutes default
 plumber_path = "./tools/pipeline/plumber/plumber"
@@ -33,9 +35,11 @@ async def pipeline_plumber_scan_impl(project_dir: str) -> List[types.TextContent
         details about the `plumber` analysis.
     :rtype: List[types.TextContent]
     """
-    if not project_dir:
-        logger.error("plumber target project_dir is required")
-        return [types.TextContent(type="text", text="plumber target project_dir is required")]
+    try:
+        project_dir = resolve_scan_dir(project_dir)
+    except ScanTargetError as e:
+        logger.error(f"plumber target error: {e}")
+        return [types.TextContent(type="text", text=f"plumber target error: {e}")]
 
     logger.info(f"Starting plumber analysis for target: {project_dir}")
 

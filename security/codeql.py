@@ -5,6 +5,8 @@ import tempfile
 import mcp.types as types
 from typing import List
 
+from security.validation import ScanTargetError, resolve_scan_dir
+
 logger = logging.getLogger(__name__)
 TIMEOUT = 1800  # 30 minutes default (database build + analysis can be slow)
 codeql_path = "./tools/sast/codeql/codeql/codeql"
@@ -45,9 +47,11 @@ async def sast_codeql_scan_impl(project_dir: str, language: str) -> List[types.T
     :return: A list of text content containing the SARIF report or error details.
     :rtype: List[types.TextContent]
     """
-    if not project_dir:
-        logger.error("codeql target project_dir is required")
-        return [types.TextContent(type="text", text="codeql target project_dir is required")]
+    try:
+        project_dir = resolve_scan_dir(project_dir)
+    except ScanTargetError as e:
+        logger.error(f"codeql target error: {e}")
+        return [types.TextContent(type="text", text=f"codeql target error: {e}")]
 
     if not language:
         logger.error("codeql language is required")
