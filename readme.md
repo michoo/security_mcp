@@ -27,6 +27,7 @@ By standardizing model-tool interactions, MCP eliminates the need for custom int
     - nosey_parker
     - titus
     - kingfisher
+    - trufflehog
   - **SCA** (Software Composition Analysis):
     - trivy
     - osv-scanner
@@ -51,7 +52,8 @@ By standardizing model-tool interactions, MCP eliminates the need for custom int
 - Remediation suggestions based on findings and leveraging genAI
 - **CLI mode** to run a full (or partial) scan and generate a dated, consolidated report
 
-> Every file-based scanner emits **SARIF 2.1.0**; zaproxy emits JSON (no native SARIF).
+> Every file-based scanner emits **SARIF 2.1.0** (trufflehog's native JSON is
+> converted to SARIF internally); zaproxy emits JSON (no native SARIF).
 
 ---
 
@@ -90,7 +92,8 @@ Any scanner can be disabled with a `.env` variable named after it (uppercased, `
 e.g. `CODEQL=False` or `KINGFISHER=off`. See `.env.example` for the full list. The same
 toggles apply to the MCP server tools.
 
-> Every file-based scanner emits **SARIF 2.1.0**; zaproxy emits JSON (no native SARIF).
+> Every file-based scanner emits **SARIF 2.1.0** (trufflehog's native JSON is
+> converted to SARIF internally); zaproxy emits JSON (no native SARIF).
 > `codeql` needs a language (auto-detected from the sources when omitted); `nuclei`/`zaproxy`
 > need network/Docker — zaproxy is skipped automatically if its image isn't pulled.
 

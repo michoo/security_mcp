@@ -19,6 +19,7 @@ from security.osv_scanner import sca_osv_scanner_scan_impl
 from security.plumber import pipeline_plumber_scan_impl
 from security.sca import sca_fix_vulnerability
 from security.titus import secret_titus_scan_impl
+from security.trufflehog import secret_trufflehog_scan_impl
 from security.trivy import sca_trivy_scan_impl, iac_trivy_misconfig_scan_impl, license_trivy_scan_impl
 from security.zap import dast_zaproxy_scan_impl
 
@@ -67,8 +68,9 @@ async def static_scan(project_dir: str) -> List[types.TextContent]:
     single consolidated, deduplicated report.
 
     This orchestrates all STATIC-mode scanners — SCA (trivy, osv-scanner),
-    secret detection (gitleaks, nosey_parker, titus), SAST (opengrep, codeql)
-    and CI/CD pipeline analysis (plumber) — collects every finding, then
+    secret detection (gitleaks, nosey_parker, titus, kingfisher, trufflehog),
+    SAST (opengrep, codeql) and CI/CD pipeline analysis (plumber) — collects
+    every finding, then
     aggregates and deduplicates them. The CodeQL source language is
     auto-detected from the directory contents.
 
@@ -301,6 +303,26 @@ async def secret_kingfisher_scan(project_dir: str) -> List[types.TextContent]:
     :rtype: List[types.TextContent]
     """
     return await secret_kingfisher_scan_impl(project_dir)
+
+@mcp.tool()
+@respects_toggle("trufflehog")
+async def secret_trufflehog_scan(project_dir: str) -> List[types.TextContent]:
+    """
+    Scans the specified project directory for secrets using Truffle Security's
+    TruffleHog tool and returns the findings as a SARIF 2.1.0 report.
+
+    TruffleHog detects credentials, API keys and tokens across source code and
+    files using a large built-in detector set. This scan runs fully locally with
+    ``--no-verification`` (no external credential validation) and
+    ``--no-update`` (no update check); its native JSON output is converted to a
+    SARIF report suitable for CI/CD integration and GitHub Advanced Security.
+
+    :param project_dir: Directory path of the project to scan.
+    :type project_dir: str
+    :return: A list of text content containing the SARIF report of detected secrets.
+    :rtype: List[types.TextContent]
+    """
+    return await secret_trufflehog_scan_impl(project_dir)
 
 # PIPELINE (CI/CD)
 @mcp.tool()
