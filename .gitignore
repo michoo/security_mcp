@@ -20,6 +20,7 @@ tools/**
 !tools/**/
 !tools/**/install.sh
 !tools/uninstall.sh
+!tools/install-all.sh
 
 # Runtime scan caches/datastores (kept under data/ by the scanners).
 data/datastore.np/
