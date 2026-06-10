@@ -30,14 +30,21 @@ async def dast_zaproxy_scan_impl(target_url: str) -> List[types.TextContent]:
     logger.info(f"Starting zap scan for target: {target_url}")
 
     try:
-        # ZAP writes its JSON report into /zap/wrk; mount a host temp dir (world-writable
-        # because the container runs as the unprivileged 'zap' user) to read it back.
+        # ZAP writes its JSON report into /zap/wrk; mount a host temp dir to read
+        # it back. tempfile.mkdtemp() creates that directory mode 0o700 — keep it
+        # that way. Widening it to 0o777 (the previous approach) would let any
+        # local user read the scan report or swap it out for attacker content
+        # before we read it back (CWE-732 incorrect permissions / CWE-377 insecure
+        # temp file). Instead, run the container as the host UID/GID so it can
+        # write into the private directory, and point HOME there so ZAP's Java
+        # process has a writable home even when that UID has no /etc/passwd entry.
         with tempfile.TemporaryDirectory() as tmp_dir:
-            os.chmod(tmp_dir, 0o777)
             report_name = "zap-report.json"
             command = [
                 "docker", "run", "--rm",
+                "--user", f"{os.getuid()}:{os.getgid()}",
                 "--network", "host",
+                "-e", "HOME=/zap/wrk",
                 "-v", f"{tmp_dir}:/zap/wrk/:rw",
                 "-t", ZAP_IMAGE,
                 "zap-full-scan.py",
