@@ -20,6 +20,7 @@ from security.nosey_parker import secret_nosey_parker_scan_impl
 from security.titus import secret_titus_scan_impl
 from security.kingfisher import secret_kingfisher_scan_impl
 from security.trufflehog import secret_trufflehog_scan_impl
+from security.betterleaks import secret_betterleaks_scan_impl
 from security.opengrep import sast_opengrep_scan_impl
 from security.codeql import sast_codeql_scan_impl
 from security.plumber import pipeline_plumber_scan_impl
@@ -60,6 +61,7 @@ SCANNERS: List[Scanner] = [
     Scanner("titus", "Secret", STATIC, "sarif", secret_titus_scan_impl),
     Scanner("kingfisher", "Secret", STATIC, "sarif", secret_kingfisher_scan_impl),
     Scanner("trufflehog", "Secret", STATIC, "sarif", secret_trufflehog_scan_impl),
+    Scanner("betterleaks", "Secret", STATIC, "sarif", secret_betterleaks_scan_impl),
     # --- SAST (static) ---
     Scanner("opengrep", "SAST", STATIC, "sarif", sast_opengrep_scan_impl),
     Scanner("codeql", "SAST", STATIC, "sarif", sast_codeql_scan_impl, needs_language=True),

@@ -9,6 +9,7 @@ from mcp.server.fastmcp import FastMCP
 from aggregate import run_and_persist
 from config import scanner_enabled, env_var_for
 from scanners import STATIC, DYNAMIC
+from security.betterleaks import secret_betterleaks_scan_impl
 from security.codeql import sast_codeql_scan_impl
 from security.gitleaks import secret_gitleaks_scan_impl
 from security.kingfisher import secret_kingfisher_scan_impl
@@ -68,9 +69,9 @@ async def static_scan(project_dir: str) -> List[types.TextContent]:
     single consolidated, deduplicated report.
 
     This orchestrates all STATIC-mode scanners — SCA (trivy, osv-scanner),
-    secret detection (gitleaks, nosey_parker, titus, kingfisher, trufflehog),
-    SAST (opengrep, codeql) and CI/CD pipeline analysis (plumber) — collects
-    every finding, then
+    secret detection (gitleaks, nosey_parker, titus, kingfisher, trufflehog,
+    betterleaks), SAST (opengrep, codeql) and CI/CD pipeline analysis (plumber)
+    — collects every finding, then
     aggregates and deduplicates them. The CodeQL source language is
     auto-detected from the directory contents.
 
@@ -323,6 +324,27 @@ async def secret_trufflehog_scan(project_dir: str) -> List[types.TextContent]:
     :rtype: List[types.TextContent]
     """
     return await secret_trufflehog_scan_impl(project_dir)
+
+@mcp.tool()
+@respects_toggle("betterleaks")
+async def secret_betterleaks_scan(project_dir: str) -> List[types.TextContent]:
+    """
+    Scans the specified project directory for secrets using Betterleaks (the
+    successor to Gitleaks, by the same authors) and returns the findings as a
+    SARIF 2.1.0 report.
+
+    Betterleaks detects credentials, API keys and tokens across source code and
+    files using a CEL-filterable ruleset with token-efficiency false-positive
+    reduction. This scan runs fully locally — live credential validation is
+    opt-in (``--validation``) and deliberately not enabled — and emits a SARIF
+    report suitable for CI/CD integration and GitHub Advanced Security.
+
+    :param project_dir: Directory path of the project to scan.
+    :type project_dir: str
+    :return: A list of text content containing the SARIF report of detected secrets.
+    :rtype: List[types.TextContent]
+    """
+    return await secret_betterleaks_scan_impl(project_dir)
 
 # PIPELINE (CI/CD)
 @mcp.tool()

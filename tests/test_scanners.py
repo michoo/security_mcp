@@ -46,6 +46,7 @@ from security.nosey_parker import secret_nosey_parker_scan_impl     # noqa: E402
 from security.titus import secret_titus_scan_impl                    # noqa: E402
 from security.kingfisher import secret_kingfisher_scan_impl          # noqa: E402
 from security.trufflehog import secret_trufflehog_scan_impl          # noqa: E402
+from security.betterleaks import secret_betterleaks_scan_impl        # noqa: E402
 from security.opengrep import sast_opengrep_scan_impl                # noqa: E402
 from security.codeql import sast_codeql_scan_impl                    # noqa: E402
 from security.plumber import pipeline_plumber_scan_impl              # noqa: E402
@@ -239,6 +240,7 @@ async def main():
         await run_sarif("Secret", "titus", secret_titus_scan_impl(secrets_dir))
         await run_sarif("Secret", "kingfisher", secret_kingfisher_scan_impl(secrets_dir))
         await run_sarif("Secret", "trufflehog", secret_trufflehog_scan_impl(secrets_dir), min_results=1)
+        await run_sarif("Secret", "betterleaks", secret_betterleaks_scan_impl(secrets_dir), min_results=1)
 
         # SAST ------------------------------------------------------------
         print("\nSAST (Static Application Security Testing):")

@@ -28,6 +28,7 @@ By standardizing model-tool interactions, MCP eliminates the need for custom int
     - titus
     - kingfisher
     - trufflehog
+    - betterleaks
   - **SCA** (Software Composition Analysis):
     - trivy
     - osv-scanner
